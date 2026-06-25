@@ -23,6 +23,7 @@ import 'package:mari_nail_app/features/home/presentation/pages/splah_screen.dart
 import 'package:mari_nail_app/features/home/presentation/pages/staff_page.dart';
 import 'package:mari_nail_app/features/home/presentation/pages/trending_desgin.dart';
 import 'package:mari_nail_app/features/home/presentation/providers/favorite_provider.dart';
+import 'package:mari_nail_app/features/home/presentation/providers/home_provider.dart';
 import 'package:mari_nail_app/features/profile/presentation/pages/change-pasword_files/change_password_profile.dart';
 import 'package:mari_nail_app/features/profile/presentation/pages/change-pasword_files/change_pw_profile_otp.dart';
 import 'package:mari_nail_app/features/profile/presentation/pages/change_phone_number.dart';
@@ -33,8 +34,11 @@ import 'package:mari_nail_app/features/profile/presentation/pages/privacy_securi
 import 'package:mari_nail_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:mari_nail_app/features/profile/presentation/pages/terms_conditions.dart';
 import 'package:mari_nail_app/features/services/data/datasource/categories_datasource_impl.dart';
+import 'package:mari_nail_app/features/services/data/datasource/services_datasources_impl.dart';
 import 'package:mari_nail_app/features/services/data/repository/categories_repo_impl.dart';
+import 'package:mari_nail_app/features/services/data/repository/services_repo_impl.dart';
 import 'package:mari_nail_app/features/services/domain/usecase/categories_usecase_impl.dart';
+import 'package:mari_nail_app/features/services/domain/usecase/services_usecase_impl.dart';
 import 'package:mari_nail_app/features/services/presentation/pages/services_page.dart';
 import 'package:mari_nail_app/features/services/presentation/providers/booking_provider.dart';
 import 'package:provider/provider.dart';
@@ -94,12 +98,26 @@ class MyApp extends StatelessWidget {
             final categoriesUsecaseImpl = CategoriesUsecaseImpl(
               categoriesRepo: categoriesRepoImpl,
             );
-            return BookingProvider(categoriesUsecase: categoriesUsecaseImpl);
+            final servicesDatasourceImpl = ServicesDatasourcesImpl(
+              customHttp: httpCustomer,
+              sharedPreferences: sharedPreferences,
+            );
+            final servicesRepoImpl = ServicesRepoImpl(
+              servicesDatasource: servicesDatasourceImpl,
+            );
+            final servicesUsecaseImpl = ServicesUsecaseImpl(
+              servicesRepo: servicesRepoImpl,
+            );
+            return BookingProvider(
+              categoriesUsecase: categoriesUsecaseImpl,
+              servicesUsecase: servicesUsecaseImpl,
+            );
           },
         ),
 
         // provider for favorite state management
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
       ],
       child: MaterialApp(
         color: AppColors.backgroundBG,
@@ -134,7 +152,6 @@ class MyApp extends StatelessWidget {
           Routes.termsConditions: (_) => TermsConditions(),
           Routes.privacySecurity: (_) => PrivacySecurity(),
           Routes.staffPage: (_) => StaffPage(),
-
           Routes.nav: (_) => Nav(),
         },
       ),

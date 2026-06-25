@@ -66,7 +66,7 @@ class _WelcomeOtpState extends State<WelcomeOtp> {
     if (success) {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.signInSuccessPage,
+        Routes.userInfoForm,
         (route) => false,
       );
     } else if (authProvider.errorMessage != null) {

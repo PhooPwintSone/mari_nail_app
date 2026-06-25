@@ -5,7 +5,8 @@ import 'package:mari_nail_app/core/widgets/app_title_bar.dart';
 import 'package:mari_nail_app/core/widgets/large_button.dart';
 
 class SignInSuccessPage extends StatelessWidget {
-  const SignInSuccessPage({super.key});
+  final dynamic userData;
+  const SignInSuccessPage({super.key, this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,11 @@ class SignInSuccessPage extends StatelessWidget {
               LargeButton(
                 lable: 'Go to Home Screen',
                 buttonAction: () {
-                  Navigator.pushNamed(context, '/nav');
+                  Navigator.pushReplacementNamed(
+                    context,
+                    '/nav',
+                    arguments: userData,
+                  );
                 },
               ),
             ],

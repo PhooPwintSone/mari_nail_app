@@ -1,5 +1,5 @@
 import 'package:mari_nail_app/features/services/data/models/services_model.dart';
 
-abstract interface class ServicesDatasource {
+abstract class ServicesUsecase {
   Future<List<ServicesModel>> getAllservices();
 }

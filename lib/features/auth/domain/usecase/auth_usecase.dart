@@ -9,17 +9,22 @@ abstract interface class AuthUseCase {
     required String password,
   });
 
-  Future<RegisterResult> registerUser({
+  Future<RegisterResponse> registerUser({
     required String email,
     required String password,
+  });
+
+  Future<void> completeProfile({
     required String fullName,
+    required String userName,
     required String phoneNumber,
     required String gender,
     File? profileImage,
   });
+  bool isAuthenticated();
 
   Future<void> verifyOtp({required String email, required String otp});
 
-  Future<void> executeForgotPassword({required String email});
-  Future<void> executeResetPassword({required String newPassword});
+  Future<void> forgotPassword({required String email});
+  Future<void> resetPassword({required String newPassword});
 }

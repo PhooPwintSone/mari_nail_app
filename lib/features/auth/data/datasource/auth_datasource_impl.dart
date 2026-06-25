@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:mari_nail_app/core/configs/app_configs.dart';
+import 'package:mari_nail_app/features/auth/presentation/pages/enter_email.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mari_nail_app/features/auth/data/datasource/auth_datasource.dart';
 import 'package:mari_nail_app/features/auth/data/model/login_response.dart';
@@ -40,87 +42,131 @@ class AuthDataSourceImpl implements AuthDataSource {
   Future<RegisterResponse> registerUser({
     required String email,
     required String password,
-    required String fullName,
-    required String phoneNumber,
-    required String gender,
-    File? profileImage,
   }) async {
-    final uri = Uri.parse(AppConfigs.registerEndpoint);
-    final request = http.MultipartRequest('POST', uri);
-
-    request.fields['email'] = email;
-    request.fields['password'] = password;
-    request.fields['fullName'] = fullName;
-    request.fields['phoneNumber'] = phoneNumber;
-    request.fields['gender'] = gender;
-
-    if (profileImage != null) {
-      final multipartFile = await http.MultipartFile.fromPath(
-        'profileImage',
-        profileImage.path,
+    try {
+      final response = await customHttp.post(
+        Uri.parse(AppConfigs.registerEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
       );
-      request.files.add(multipartFile);
-    }
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      return RegisterResponse.fromSuccessText(response.body);
-    } else {
-      final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Registration failed');
+      if (response.statusCode == 200) {
+        return RegisterResponse.fromSuccessText(response.body);
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['error'] ?? 'Registration failed');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 
   @override
   Future<void> verifyOtp({required String email, required String otp}) async {
-    final response = await customHttp.post(
-      Uri.parse(AppConfigs.verifyOtpEndpoint),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'otp': otp}),
-    );
+    try {
+      final response = await customHttp.post(
+        Uri.parse(AppConfigs.verifyOtpEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'otp': otp}),
+      );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData = jsonDecode(response.body);
 
-      final accessToken = jsonData['accessToken'] as String;
-      final refreshToken = jsonData['refreshToken'] as String;
+        final accessToken = jsonData['accessToken'] as String;
+        final refreshToken = jsonData['refreshToken'] as String;
 
-      await sharedPreferences.setString('access_token', accessToken);
-      await sharedPreferences.setString('refresh_token', refreshToken);
-    } else {
-      String errorMsg = 'OTP verification failed';
-      if (response.body.trim().isNotEmpty) {
-        try {
-          final errorData = jsonDecode(response.body);
-          errorMsg = errorData['message'] ?? errorMsg;
-        } catch (_) {}
+        await sharedPreferences.setString('accessToken', accessToken);
+        await sharedPreferences.setString('refreshTtoken', refreshToken);
+        print(accessToken);
+      } else {
+        String errorMsg = 'OTP verification failed';
+        if (response.body.trim().isNotEmpty) {
+          try {
+            final errorData = jsonDecode(response.body);
+            errorMsg = errorData['message'] ?? errorMsg;
+          } catch (_) {}
+        }
+        throw Exception(errorMsg);
       }
-      throw Exception(errorMsg);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<void> completeProfile({
+    required String fullName,
+    required String userName,
+    required String phoneNumber,
+    required String gender,
+    File? profileImage,
+  }) async {
+    try {
+      final token = sharedPreferences.getString('accessToken') ?? '';
+      final uri = Uri.parse(AppConfigs.completeProfileEndpoint);
+      final request = http.MultipartRequest('POST', uri);
+
+      request.headers.addAll({'Authorization': 'Bearer $token'});
+      print(token);
+      request.fields['fullName'] = fullName;
+      request.fields['phoneNumber'] = phoneNumber;
+      request.fields['gender'] = gender;
+
+      if (profileImage != null) {
+        final multipartFile = await http.MultipartFile.fromPath(
+          'profileImage',
+          profileImage.path,
+        );
+        request.files.add(multipartFile);
+      }
+      final streamedResponse = await customHttp.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+      log(response.body);
+
+      if (response.statusCode == 200) {
+        await sharedPreferences.setString('user_name', fullName);
+        await sharedPreferences.setString('user_phone', phoneNumber);
+        return;
+      } else {
+        String errorMsg = 'Failed to complete user profile';
+        if (response.body.trim().isNotEmpty) {
+          try {
+            final errorData = jsonDecode(response.body);
+            errorMsg = errorData['message'] ?? errorMsg;
+          } catch (_) {}
+        }
+        throw Exception(errorMsg);
+      }
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 
   @override
   Future<void> forgotPassword({required String email}) async {
-    final response = await customHttp.post(
-      Uri.parse(AppConfigs.forgotPasswordEndpoint),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email}),
-    );
+    try {
+      final response = await customHttp.post(
+        Uri.parse(AppConfigs.forgotPasswordEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
 
-    if (response.statusCode == 200) {
-      return;
-    }
+      if (response.statusCode == 200) {
+        return;
+      }
 
-    String errorMsg = 'Failed to request password reset.';
-    if (response.body.trim().isNotEmpty) {
-      try {
-        final data = jsonDecode(response.body);
-        errorMsg = data['message'] ?? data['status'] ?? errorMsg;
-      } catch (_) {}
+      String errorMsg = 'Failed to request password reset.';
+      if (response.body.trim().isNotEmpty) {
+        try {
+          final data = jsonDecode(response.body);
+          errorMsg = data['message'] ?? data['status'] ?? errorMsg;
+        } catch (_) {}
+      }
+      throw Exception(errorMsg);
+    } catch (e) {
+      throw Exception(e.toString());
     }
-    throw Exception(errorMsg);
   }
 
   @override
@@ -146,5 +192,15 @@ class AuthDataSourceImpl implements AuthDataSource {
       }
       throw Exception(errorMsg);
     }
+  }
+
+  @override
+  bool hasToken() {
+    final acccessToken = sharedPreferences.getString('accessToken');
+    final refreshToken = sharedPreferences.getString('refreshToken');
+    return acccessToken != null &&
+        refreshToken != null &&
+        acccessToken.isNotEmpty &&
+        refreshToken.isNotEmpty;
   }
 }

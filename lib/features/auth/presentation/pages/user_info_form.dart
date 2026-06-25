@@ -18,7 +18,9 @@ class UserInfoForm extends StatefulWidget {
 }
 
 class _UserInfoFormState extends State<UserInfoForm> {
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _fullnameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+
   final TextEditingController _phoneNumberController = TextEditingController();
 
   final genders = ['Female', 'Male'];
@@ -29,7 +31,9 @@ class _UserInfoFormState extends State<UserInfoForm> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _fullnameController.dispose();
+    _usernameController.dispose();
+
     _phoneNumberController.dispose();
     super.dispose();
   }
@@ -44,11 +48,15 @@ class _UserInfoFormState extends State<UserInfoForm> {
     }
   }
 
-  void _submitProfile(String email, String password) async {
-    final name = _nameController.text.trim();
+  void _submitProfile() async {
+    final fullname = _fullnameController.text.trim();
+    final username = _usernameController.text.trim();
     final phone = _phoneNumberController.text.trim();
 
-    if (name.isEmpty || phone.isEmpty || selectedGender == null) {
+    if (fullname.isEmpty ||
+        username.isEmpty ||
+        phone.isEmpty ||
+        selectedGender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill all required profile text fields.'),
@@ -59,10 +67,9 @@ class _UserInfoFormState extends State<UserInfoForm> {
 
     final authProvider = context.read<AuthProvider>();
 
-    final isSuccess = await authProvider.registerUser(
-      email: email,
-      password: password,
-      fullName: name,
+    final isSuccess = await authProvider.completeUserProfile(
+      fullName: fullname,
+      userName: username,
       phoneNumber: phone,
       gender: selectedGender!,
       profileImage: image,
@@ -71,7 +78,11 @@ class _UserInfoFormState extends State<UserInfoForm> {
     if (!mounted) return;
 
     if (isSuccess) {
-      Navigator.pushNamed(context, Routes.welcomeOtp);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.signInSuccessPage,
+        (route) => false,
+      );
     } else if (authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -84,12 +95,6 @@ class _UserInfoFormState extends State<UserInfoForm> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, String>? ??
-        {};
-    final email = arguments['email'] ?? '';
-    final password = arguments['password'] ?? '';
-
     final authLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
@@ -149,7 +154,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Name',
+                      'Full Name',
                       style: TextStyles.textNormal.copyWith(
                         color: AppColors.secondary,
                       ),
@@ -157,9 +162,24 @@ class _UserInfoFormState extends State<UserInfoForm> {
                     const SizedBox(height: 10),
 
                     MyTextField(
-                      hint: 'Enter your name',
+                      hint: 'Enter your full name',
                       obscure: false,
-                      controller: _nameController,
+                      controller: _fullnameController,
+                    ),
+                    const SizedBox(height: 10),
+
+                    Text(
+                      'User Name',
+                      style: TextStyles.textNormal.copyWith(
+                        color: AppColors.secondary,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    MyTextField(
+                      hint: 'Enter your User name',
+                      obscure: false,
+                      controller: _usernameController,
                     ),
                     const SizedBox(height: 10),
 
@@ -232,7 +252,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                         ? const Center(child: CircularProgressIndicator())
                         : LargeButton(
                             lable: 'Continue',
-                            buttonAction: () => _submitProfile(email, password),
+                            buttonAction: _submitProfile,
                           ),
                   ],
                 ),

@@ -31,7 +31,6 @@ class TrendCard extends StatelessWidget {
                   Navigator.pushNamed(context, Routes.trendingDesign);
                 }
               },
-              // Navigate to the trending design page when the image is tapped
               child: Image.asset(
                 trendingModel.image,
                 fit: BoxFit.cover,

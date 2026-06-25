@@ -1,6 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:mari_nail_app/core/routes/routes.dart';
+import 'package:mari_nail_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,10 +26,23 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 3000),
     )..forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      if (!mounted) return;
-
-      Navigator.pushReplacementNamed(context, '/signin_create_account_page');
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (mounted) {
+        final pref = await SharedPreferences.getInstance();
+        final String? token = pref.getString('accessToken');
+        final bool isloggedin = token != null && token.isNotEmpty;
+        if (mounted) {
+          if (isloggedin) {
+            context.read<AuthProvider>().authenticated(true);
+          }
+          isloggedin
+              ? Navigator.pushReplacementNamed(context, Routes.nav)
+              : Navigator.pushReplacementNamed(
+                  context,
+                  Routes.signinCreateAccountPage,
+                );
+        }
+      }
     });
   }
 
@@ -45,12 +62,10 @@ class _SplashScreenState extends State<SplashScreen>
         builder: (context, child) {
           final t = _controller.value;
 
-          /// Phase 1: rise
           final riseProgress = Curves.easeInOut.transform(
             (t / 0.35).clamp(0.0, 1.0),
           );
 
-          /// Phase 2: liquid expansion
           final expandProgress = Curves.easeInOut.transform(
             ((t - 0.35) / 0.65).clamp(0.0, 1.0),
           );

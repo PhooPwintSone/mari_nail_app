@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/features/history/presentation/pages/history_page.dart';
 import 'package:mari_nail_app/features/home/presentation/pages/home_page.dart';
+import 'package:mari_nail_app/features/home/presentation/providers/home_provider.dart';
 import 'package:mari_nail_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:mari_nail_app/features/services/presentation/pages/services_page.dart';
 
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:provider/provider.dart';
 
 class Nav extends StatefulWidget {
   const Nav({super.key});
@@ -15,17 +17,16 @@ class Nav extends StatefulWidget {
 }
 
 class _NavState extends State<Nav> {
-  int currentindex = 0;
   @override
   Widget build(BuildContext context) {
-    List<Widget> pages = [
+    final List<Widget> pages = [
       HomePage(),
       ServicesPage(),
       HistoryPage(),
       ProfilePage(),
     ];
     return Scaffold(
-      body: pages[currentindex],
+      body: pages[context.watch<HomeProvider>().currentIndex],
 
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
@@ -33,7 +34,8 @@ class _NavState extends State<Nav> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(4, (index) {
-            final isSelected = currentindex == index;
+            final isSelected =
+                context.watch<HomeProvider>().currentIndex == index;
 
             final items = [
               (Icons.home, " Home "),
@@ -44,9 +46,7 @@ class _NavState extends State<Nav> {
 
             return GestureDetector(
               onTap: () {
-                setState(() {
-                  currentindex = index;
-                });
+                context.read<HomeProvider>().changeIndex(index);
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),

@@ -20,6 +20,8 @@ class _ForgotPwemailState extends State<ForgotPwemail> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  bool _obsureNewPassword = true;
+  bool _obsureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -52,9 +54,7 @@ class _ForgotPwemailState extends State<ForgotPwemail> {
       return;
     }
 
-    final success = await authProvider.finalizeResetPassword(
-      newPassword: newPassword,
-    );
+    final success = await authProvider.resetPassword(newPassword: newPassword);
 
     if (!mounted) return;
 
@@ -119,8 +119,21 @@ class _ForgotPwemailState extends State<ForgotPwemail> {
               const SizedBox(height: 8),
               MyTextField(
                 hint: 'Enter new password',
-                obscure: true,
+                obscure: _obsureNewPassword,
                 controller: _newPasswordController,
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obsureNewPassword = !_obsureNewPassword;
+                    });
+                  },
+                  icon: Icon(
+                    _obsureNewPassword
+                        ? PhosphorIcons.eyeClosed
+                        : PhosphorIcons.eye,
+                    color: Colors.black,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -132,8 +145,21 @@ class _ForgotPwemailState extends State<ForgotPwemail> {
               const SizedBox(height: 8),
               MyTextField(
                 hint: 'Confirm your new password',
-                obscure: true,
+                obscure: _obsureConfirmPassword,
                 controller: _confirmPasswordController,
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obsureConfirmPassword = !_obsureConfirmPassword;
+                    });
+                  },
+                  icon: Icon(
+                    _obsureConfirmPassword
+                        ? PhosphorIcons.eyeClosed
+                        : PhosphorIcons.eye,
+                    color: Colors.black,
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
               authLoading

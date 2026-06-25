@@ -14,7 +14,11 @@ abstract interface class AuthDataSource {
   Future<RegisterResponse> registerUser({
     required String email,
     required String password,
+  });
+
+  Future<void> completeProfile({
     required String fullName,
+    required String userName,
     required String phoneNumber,
     required String gender,
     File? profileImage,
@@ -23,4 +27,6 @@ abstract interface class AuthDataSource {
   Future<void> forgotPassword({required String email});
 
   Future<void> resetPassword({required String newPassword});
+
+  bool hasToken();
 }

@@ -16,4 +16,5 @@ class AppConfigs {
       '$authBaseUrl/api/auth/reset-password';
 
   static const String categoriesEndpoint = '$authBaseUrl/api/categories';
+  static const String servicesEndpoint = '$authBaseUrl/api/services';
 }

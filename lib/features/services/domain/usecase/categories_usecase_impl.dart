@@ -9,8 +9,7 @@ class CategoriesUsecaseImpl implements CategoriesUsecase {
   @override
   Future<List<CategoryModel>> categoriesList() async {
     try {
-      final result = await categoriesRepo.categoriesList();
-      return result;
+      return await categoriesRepo.categoriesList();
     } catch (e) {
       throw Exception(e.toString());
     }

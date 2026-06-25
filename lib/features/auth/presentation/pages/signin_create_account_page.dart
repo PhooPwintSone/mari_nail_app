@@ -24,6 +24,8 @@ class _SigninCreateAccountPageState extends State<SigninCreateAccountPage> {
   final TextEditingController _confirmpwController = TextEditingController();
 
   bool _obsurePassword = true;
+  bool _obsureConfirmPassword = true;
+
   bool isSignInPage = true;
 
   @override
@@ -65,7 +67,7 @@ class _SigninCreateAccountPageState extends State<SigninCreateAccountPage> {
     }
   }
 
-  void _handleSignUp() {
+  void _handleSignUp() async {
     final email = _emailController.text.trim();
     final password = _pwController.text.trim();
     final confirmPassword = _confirmpwController.text.trim();
@@ -87,11 +89,27 @@ class _SigninCreateAccountPageState extends State<SigninCreateAccountPage> {
       return;
     }
 
-    Navigator.pushNamed(
-      context,
-      Routes.userInfoForm,
-      arguments: {'email': email, 'password': password},
+    final authProvider = context.read<AuthProvider>();
+
+    final success = await authProvider.registerUser(
+      email: email,
+      password: password,
     );
+    if (!mounted) return;
+    if (success) {
+      Navigator.pushNamed(
+        context,
+        Routes.welcomeOtp,
+        arguments: {'email': email},
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMessage ?? 'Registration failed'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
   }
 
   @override
@@ -201,6 +219,7 @@ class _SigninCreateAccountPageState extends State<SigninCreateAccountPage> {
                       _obsurePassword
                           ? PhosphorIcons.eyeClosed
                           : PhosphorIcons.eye,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -278,8 +297,21 @@ class _SigninCreateAccountPageState extends State<SigninCreateAccountPage> {
                   const SizedBox(height: 10),
                   MyTextField(
                     hint: 'Re-enter your password :',
-                    obscure: true,
+                    obscure: _obsureConfirmPassword,
                     controller: _confirmpwController,
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _obsureConfirmPassword = !_obsureConfirmPassword;
+                        });
+                      },
+                      icon: Icon(
+                        _obsureConfirmPassword
+                            ? PhosphorIcons.eyeClosed
+                            : PhosphorIcons.eye,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   authLoading

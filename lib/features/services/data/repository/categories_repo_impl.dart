@@ -9,8 +9,7 @@ class CategoriesRepoImpl implements CategoriesRepo {
   @override
   Future<List<CategoryModel>> categoriesList() async {
     try {
-      final result = await categoriesDatasource.categoriesList();
-      return result;
+      return await categoriesDatasource.categoriesList();
     } catch (e) {
       throw Exception(e.toString());
     }

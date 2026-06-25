@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mari_nail_app/features/auth/data/model/login_response.dart';
 import 'package:mari_nail_app/features/auth/domain/usecase/auth_usecase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthUseCase _authUseCase;
@@ -23,8 +24,8 @@ class AuthProvider with ChangeNotifier {
   String _userFullName = '';
   String get userFullName => _userFullName;
 
-  bool _isAuthebticated = false;
-  bool get isAuthebticated => _isAuthebticated;
+  bool _isAuthenticated = false;
+  bool get isAuthenticated => _isAuthenticated;
 
   Future<bool> loginWithEmailAndPassword({
     required String email,
@@ -42,6 +43,15 @@ class AuthProvider with ChangeNotifier {
       _loginResponse = response;
       _userEmail = email;
       _userFullName = email.split('@').first;
+
+      final prefs = await SharedPreferences.getInstance();
+
+      final String token = response.tokenPair.accessToken;
+
+      if (token != null) {
+        await prefs.setString('accessToken', token);
+      }
+
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -52,34 +62,22 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  void authebticated(bool value) {
-    _isAuthebticated = value;
+  void authenticated(bool value) {
+    _isAuthenticated = value;
     notifyListeners();
   }
 
   Future<bool> registerUser({
     required String email,
     required String password,
-    required String fullName,
-    required String phoneNumber,
-    required String gender,
-    File? profileImage,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await _authUseCase.registerUser(
-        email: email,
-        password: password,
-        fullName: fullName,
-        phoneNumber: phoneNumber,
-        gender: gender,
-        profileImage: profileImage,
-      );
+      await _authUseCase.registerUser(email: email, password: password);
       _userEmail = email;
-      _userFullName = fullName;
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -107,14 +105,44 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> completeUserProfile({
+    required String fullName,
+
+    required String userName,
+    required String phoneNumber,
+    required String gender,
+    File? profileImage,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authUseCase.completeProfile(
+        fullName: fullName,
+        userName: userName,
+        phoneNumber: phoneNumber,
+        gender: gender,
+      );
+      _userFullName = fullName;
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> sendForgotPasswordOtp({required String email}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await _authUseCase.executeForgotPassword(email: email);
-      _userEmail = email; // Cache it securely
+      await _authUseCase.forgotPassword(email: email);
+      _userEmail = email;
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -125,17 +153,36 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> finalizeResetPassword({required String newPassword}) async {
+  Future<bool> resetPassword({required String newPassword}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await _authUseCase.executeResetPassword(newPassword: newPassword);
+      await _authUseCase.resetPassword(newPassword: newPassword);
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logout() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('accessToken');
+
+      _loginResponse = null;
+      _userEmail = '';
+      _userFullName = '';
+    } catch (e) {
+      _errorMessage = "Failed to log out cleanly: $e";
     } finally {
       _isLoading = false;
       notifyListeners();

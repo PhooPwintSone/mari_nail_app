@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mari_nail_app/core/routes/routes.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/core/theme/text_styles.dart';
+import 'package:mari_nail_app/features/home/presentation/providers/home_provider.dart';
 import 'package:mari_nail_app/features/home/presentation/widgets/services/services_item.dart';
+import 'package:provider/provider.dart';
 
 class ServiesCategories extends StatelessWidget {
   const ServiesCategories({super.key});
@@ -25,7 +28,7 @@ class ServiesCategories extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/ServicesPage');
+                  context.read<HomeProvider>().changeIndex(1);
                 },
                 child: Text(
                   'See all',

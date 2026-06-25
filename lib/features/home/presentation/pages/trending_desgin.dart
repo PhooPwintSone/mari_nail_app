@@ -20,7 +20,9 @@ class _TrendingDesginState extends State<TrendingDesgin> {
       appBar: AppBarStyle2(
         showNotification: false,
         hasUnreadNotification: false,
-        backButtonAction: () {},
+        backButtonAction: () {
+          Navigator.pop(context);
+        },
 
         onNotificationTap: () {},
         mainText: "Trending Design",

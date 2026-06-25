@@ -22,22 +22,11 @@ class AuthUsecaseImpl implements AuthUseCase {
   }
 
   @override
-  Future<RegisterResult> registerUser({
+  Future<RegisterResponse> registerUser({
     required String email,
     required String password,
-    required String fullName,
-    required String phoneNumber,
-    required String gender,
-    File? profileImage,
   }) async {
-    return await _authRepository.registerUser(
-      email: email,
-      password: password,
-      fullName: fullName,
-      phoneNumber: phoneNumber,
-      gender: gender,
-      profileImage: profileImage,
-    );
+    return await _authRepository.registerUser(email: email, password: password);
   }
 
   @override
@@ -46,12 +35,34 @@ class AuthUsecaseImpl implements AuthUseCase {
   }
 
   @override
-  Future<void> executeForgotPassword({required String email}) {
+  Future<void> forgotPassword({required String email}) {
     return _authRepository.forgotPassword(email: email);
   }
 
   @override
-  Future<void> executeResetPassword({required String newPassword}) {
+  Future<void> resetPassword({required String newPassword}) {
     return _authRepository.resetPassword(newPassword: newPassword);
+  }
+
+  @override
+  Future<void> completeProfile({
+    required String fullName,
+    required String userName,
+    required String phoneNumber,
+    required String gender,
+    File? profileImage,
+  }) async {
+    return await _authRepository.completeProfile(
+      fullName: fullName,
+      userName: userName,
+      phoneNumber: phoneNumber,
+      gender: gender,
+      profileImage: profileImage,
+    );
+  }
+
+  @override
+  bool isAuthenticated() {
+    return _authRepository.isAuthenticated();
   }
 }

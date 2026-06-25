@@ -21,22 +21,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<RegisterResult> registerUser({
+  Future<RegisterResponse> registerUser({
     required String email,
     required String password,
-    required String fullName,
-    required String phoneNumber,
-    required String gender,
-    File? profileImage,
   }) async {
-    return await _authDataSource.registerUser(
-      email: email,
-      password: password,
-      fullName: fullName,
-      phoneNumber: phoneNumber,
-      gender: gender,
-      profileImage: profileImage,
-    );
+    try {
+      return await _authDataSource.registerUser(
+        email: email,
+        password: password,
+      );
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 
   @override
@@ -52,5 +48,30 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> resetPassword({required String newPassword}) {
     return _authDataSource.resetPassword(newPassword: newPassword);
+  }
+
+  @override
+  Future<void> completeProfile({
+    required String fullName,
+    required String userName,
+    required String phoneNumber,
+    required String gender,
+    File? profileImage,
+  }) async {
+    try {
+      return await _authDataSource.completeProfile(
+        fullName: fullName,
+        userName: userName,
+        phoneNumber: phoneNumber,
+        gender: gender,
+      );
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  bool isAuthenticated() {
+    return _authDataSource.hasToken();
   }
 }
