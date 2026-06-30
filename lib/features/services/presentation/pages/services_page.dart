@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/core/theme/text_styles.dart';
-import 'package:mari_nail_app/core/widgets/appBar_style2.dart';
 import 'package:mari_nail_app/core/widgets/notification_badge.dart';
 import 'package:mari_nail_app/features/services/presentation/widgets/categories_box_button.dart';
 
@@ -87,6 +86,7 @@ class _ServicesPageState extends State<ServicesPage> {
             : null,
       ),
 
+      //  BODY //
       body: Column(
         children: [
           Padding(

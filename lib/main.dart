@@ -16,6 +16,10 @@ import 'package:mari_nail_app/features/auth/presentation/pages/signin_create_acc
 import 'package:mari_nail_app/features/auth/presentation/pages/user_info_form.dart';
 import 'package:mari_nail_app/features/auth/presentation/pages/welcome_otp.dart';
 import 'package:mari_nail_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:mari_nail_app/features/booking/presentation/pages/booking_page.dart';
+import 'package:mari_nail_app/features/booking/presentation/pages/booking_submit_page.dart';
+import 'package:mari_nail_app/features/booking/presentation/providers/staff_provider.dart';
+import 'package:mari_nail_app/features/booking/presentation/widgets/booking_time_grid.dart';
 import 'package:mari_nail_app/features/home/presentation/pages/home_page.dart';
 import 'package:mari_nail_app/features/home/presentation/pages/nav.dart';
 import 'package:mari_nail_app/features/home/presentation/pages/recently_favourite.dart';
@@ -118,6 +122,7 @@ class MyApp extends StatelessWidget {
         // provider for favorite state management
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => StaffProvider()),
       ],
       child: MaterialApp(
         color: AppColors.backgroundBG,
@@ -126,6 +131,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.fredokaTextTheme(),
           useMaterial3: false,
         ),
+
         initialRoute: Routes.splashScreen,
         routes: {
           Routes.signinCreateAccountPage: (_) => SigninCreateAccountPage(),
@@ -152,7 +158,10 @@ class MyApp extends StatelessWidget {
           Routes.termsConditions: (_) => TermsConditions(),
           Routes.privacySecurity: (_) => PrivacySecurity(),
           Routes.staffPage: (_) => StaffPage(),
+          Routes.bookingPage: (_) => BookingPage(),
           Routes.nav: (_) => Nav(),
+          Routes.bookingTimeGrid: (_) => BookingTimeGrid(),
+          Routes.bookingSubmitPage: (_) => BookingSubmitPage(),
         },
       ),
     );

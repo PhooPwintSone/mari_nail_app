@@ -20,12 +20,12 @@ class Routes {
   static const String deleteAccountPage = '/DeleteAccountPage';
   static const String changePasswordProfile = '/ChangePasswordProfile';
   static const String changePwProfileOtp = '/ChangePwProfileOtp';
-
   static const String changePhoneNumber = '/ChangePhoneNumber';
-
   static const String personalInfoEdit = '/PersonalInfoEdit';
-
   static const String termsConditions = '/TermsConditions';
   static const String privacySecurity = '/PrivacySecurity';
   static const String staffPage = '/StaffPage';
+  static const String bookingPage = '/BookingPage';
+  static const String bookingTimeGrid = '/BookingTimeGrid';
+  static const String bookingSubmitPage = '/BookingSubmitPage';
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/core/theme/text_styles.dart';
 import 'package:mari_nail_app/core/widgets/notification_badge.dart';
+import 'package:mari_nail_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool hasUnreadNotification;
@@ -17,18 +19,31 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
+    final userName = authProvider.userFullName;
+    String getGreeting() {
+      final int hour = DateTime.now().hour;
+
+      if (hour < 12) {
+        return 'Good Morning';
+      } else if (hour < 17) {
+        return 'Good Afternoon';
+      } else {
+        return 'Good Evening';
+      }
+    }
+
     return AppBar(
       toolbarHeight: 100,
       title: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Greeting should be changed depending on the time
-          Text('Good Morning', style: TextStyles.textNormal),
+          Text(getGreeting(), style: TextStyles.textNormal),
           const SizedBox(height: 8),
 
-          // user name also alive
-          Text('Christine', style: TextStyles.heading2Regular),
+          Text(userName, style: TextStyles.heading2Regular),
         ],
       ),
       backgroundColor: Colors.transparent,

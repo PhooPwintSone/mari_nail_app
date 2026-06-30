@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:mari_nail_app/core/configs/app_configs.dart';
-import 'package:mari_nail_app/features/auth/presentation/pages/enter_email.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mari_nail_app/features/auth/data/datasource/auth_datasource.dart';
 import 'package:mari_nail_app/features/auth/data/model/login_response.dart';
@@ -78,16 +77,9 @@ class AuthDataSourceImpl implements AuthDataSource {
 
         await sharedPreferences.setString('accessToken', accessToken);
         await sharedPreferences.setString('refreshTtoken', refreshToken);
-        print(accessToken);
       } else {
-        String errorMsg = 'OTP verification failed';
-        if (response.body.trim().isNotEmpty) {
-          try {
-            final errorData = jsonDecode(response.body);
-            errorMsg = errorData['message'] ?? errorMsg;
-          } catch (_) {}
-        }
-        throw Exception(errorMsg);
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message']);
       }
     } catch (e) {
       throw Exception(e.toString());
@@ -129,14 +121,8 @@ class AuthDataSourceImpl implements AuthDataSource {
         await sharedPreferences.setString('user_phone', phoneNumber);
         return;
       } else {
-        String errorMsg = 'Failed to complete user profile';
-        if (response.body.trim().isNotEmpty) {
-          try {
-            final errorData = jsonDecode(response.body);
-            errorMsg = errorData['message'] ?? errorMsg;
-          } catch (_) {}
-        }
-        throw Exception(errorMsg);
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message']);
       }
     } catch (e) {
       throw Exception(e.toString());
@@ -154,16 +140,10 @@ class AuthDataSourceImpl implements AuthDataSource {
 
       if (response.statusCode == 200) {
         return;
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['message']);
       }
-
-      String errorMsg = 'Failed to request password reset.';
-      if (response.body.trim().isNotEmpty) {
-        try {
-          final data = jsonDecode(response.body);
-          errorMsg = data['message'] ?? data['status'] ?? errorMsg;
-        } catch (_) {}
-      }
-      throw Exception(errorMsg);
     } catch (e) {
       throw Exception(e.toString());
     }
@@ -171,26 +151,26 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   @override
   Future<void> resetPassword({required String newPassword}) async {
-    final token = sharedPreferences.getString('access_token') ?? '';
+    try {
+      final token = sharedPreferences.getString('access_token') ?? '';
 
-    final response = await customHttp.post(
-      Uri.parse(AppConfigs.resetPasswordEndpoint),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({'newPassword': newPassword}),
-    );
+      final response = await customHttp.post(
+        Uri.parse(AppConfigs.resetPasswordEndpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'newPassword': newPassword}),
+      );
 
-    if (response.statusCode != 200) {
-      String errorMsg = 'Invalid OTP or expired';
-      if (response.body.trim().isNotEmpty) {
-        try {
-          final errorData = jsonDecode(response.body);
-          errorMsg = errorData['message'] ?? errorMsg;
-        } catch (_) {}
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['messsage']);
       }
-      throw Exception(errorMsg);
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 

@@ -48,11 +48,7 @@ class SignInSuccessPage extends StatelessWidget {
               LargeButton(
                 lable: 'Go to Home Screen',
                 buttonAction: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/nav',
-                    arguments: userData,
-                  );
+                  Navigator.pushReplacementNamed(context, '/nav');
                 },
               ),
             ],

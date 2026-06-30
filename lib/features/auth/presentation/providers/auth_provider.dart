@@ -40,6 +40,7 @@ class AuthProvider with ChangeNotifier {
         email: email,
         password: password,
       );
+
       _loginResponse = response;
       _userEmail = email;
       _userFullName = email.split('@').first;
@@ -48,9 +49,7 @@ class AuthProvider with ChangeNotifier {
 
       final String token = response.tokenPair.accessToken;
 
-      if (token != null) {
-        await prefs.setString('accessToken', token);
-      }
+      await prefs.setString('accessToken', token);
 
       return true;
     } catch (e) {
@@ -107,7 +106,6 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> completeUserProfile({
     required String fullName,
-
     required String userName,
     required String phoneNumber,
     required String gender,
@@ -127,7 +125,7 @@ class AuthProvider with ChangeNotifier {
       _userFullName = fullName;
       return true;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception', '');
+      _errorMessage = e.toString();
       return false;
     } finally {
       _isLoading = false;
@@ -145,7 +143,7 @@ class AuthProvider with ChangeNotifier {
       _userEmail = email;
       return true;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = e.toString();
       return false;
     } finally {
       _isLoading = false;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mari_nail_app/core/routes/routes.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/core/theme/text_styles.dart';
 import 'package:mari_nail_app/features/home/presentation/providers/home_provider.dart';

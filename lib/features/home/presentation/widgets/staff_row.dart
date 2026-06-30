@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/core/theme/text_styles.dart';
-import 'package:mari_nail_app/core/widgets/small_button.dart';
 
 class StaffRow extends StatelessWidget {
+  final Widget child;
   final String staffName;
-  const StaffRow({super.key, required this.staffName});
+  const StaffRow({super.key, required this.staffName, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          SizedBox(width: 20),
+
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
@@ -27,23 +28,31 @@ class StaffRow extends StatelessWidget {
               height: 70,
             ),
           ),
-
+          SizedBox(width: 10),
           Column(
             children: [
               Text(staffName),
               Text(
-                'Nail Atrist',
-                style: TextStyles.button2Regular.copyWith(
+                'Nail Artist',
+                style: TextStyles.button1Medium.copyWith(
                   color: AppColors.primary,
                 ),
               ),
             ],
           ),
 
+          SizedBox(width: 10),
+
           Icon(Icons.star, color: Color(0xffF1B019)),
+          SizedBox(width: 10),
+
           Text('4.5'),
+          SizedBox(width: 8),
+
           Text('(100)'),
-          SmallButton(label: 'Book Now', button2Action: () {}),
+          SizedBox(width: 10),
+
+          Padding(padding: const EdgeInsets.only(left: 20), child: child),
         ],
       ),
     );

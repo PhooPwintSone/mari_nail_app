@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mari_nail_app/core/routes/routes.dart';
 import 'package:mari_nail_app/core/theme/app_colors.dart';
 import 'package:mari_nail_app/core/theme/text_styles.dart';
 import 'package:mari_nail_app/core/widgets/small_button.dart';
@@ -73,28 +74,37 @@ class _CategoriesBoxButtonState extends State<CategoriesBoxButton> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 5,
-            children: dynamicCategories.map((CategoryModel category) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ChoiceChip(
-                  selectedColor: AppColors.primary,
-                  disabledColor: Colors.transparent,
-                  elevation: 0,
-                  pressElevation: 0,
-                  label: Text(category.name),
-                  selected: selectedCategoryId == category.id,
-                  onSelected: (bool selected) {
-                    if (selected) {
-                      setState(() {
-                        selectedCategoryId = category.id;
-                      });
-                    }
-                  },
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 1,
+            height: MediaQuery.of(context).size.height * 0.06,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                Wrap(
+                  spacing: 5,
+                  children: dynamicCategories.map((CategoryModel category) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: ChoiceChip(
+                        selectedColor: AppColors.primary,
+                        disabledColor: Colors.transparent,
+                        elevation: 0,
+                        pressElevation: 0,
+                        label: Text(category.name),
+                        selected: selectedCategoryId == category.id,
+                        onSelected: (bool selected) {
+                          if (selected) {
+                            setState(() {
+                              selectedCategoryId = category.id;
+                            });
+                          }
+                        },
+                      ),
+                    );
+                  }).toList(),
                 ),
-              );
-            }).toList(),
+              ],
+            ),
           ),
 
           const SizedBox(height: 16),
@@ -134,6 +144,14 @@ class _CategoriesBoxButtonState extends State<CategoriesBoxButton> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(service.name, style: TextStyles.body1Medium),
+
+                              SizedBox(height: 5),
+                              Text(
+                                service.description,
+                                style: TextStyles.textLight,
+                              ),
+                              SizedBox(height: 5),
+
                               Row(
                                 children: [
                                   Text(
@@ -155,15 +173,15 @@ class _CategoriesBoxButtonState extends State<CategoriesBoxButton> {
                           padding: const EdgeInsets.only(left: 70),
                           child: SmallButton(
                             label: "Book Now",
-                            button2Action: () {},
+                            button2Action: () {
+                              Navigator.pushNamed(context, Routes.bookingPage);
+                            },
                           ),
                         ),
                       ],
                     ),
                   ),
                 );
-
-                // ListTile(title: Text(service.name));
               },
             ),
         ],
